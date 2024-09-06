@@ -1,14 +1,107 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MindAR.js Image Tracking</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="https://cdn.jsdelivr.net/npm/mindar@latest/dist/mindar.js"></script>
-</head>
-<body>
-  <div id="mindar-container"></div>
-  <script src="script.js"></script>
-</body>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const video = document.getElementById("target-video");
+        const playButton = document.getElementById("play-button");
+
+        function toggleVideo() {
+          if (video.paused) {
+            video.play();
+            playButton.setAttribute("visible", "false");
+          } else {
+            video.pause();
+            playButton.setAttribute("visible", "true");
+          }
+        }
+
+        const scene = document.querySelector("a-scene");
+        scene.addEventListener("loaded", () => {
+          const target = document.querySelector("[mindar-image-target]");
+          target.addEventListener("targetFound", () => {
+            playButton.setAttribute("visible", "true");
+          });
+          target.addEventListener("targetLost", () => {
+            video.pause();
+            playButton.setAttribute("visible", "false");
+          });
+        });
+
+        playButton.addEventListener("click", toggleVideo);
+      });
+    </script>
+    <style>
+      body,
+      html {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        width: 100%;
+        height: 100%;
+      }
+
+      a-scene {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+  <body>
+    <a-scene
+      mindar-image="imageTargetSrc: https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.2/examples/image-tracking/assets/card-example/card.mind"
+      embedded
+      color-space="sRGB"
+      renderer="colorManagement: true, physicallyCorrectLights"
+      vr-mode-ui="enabled: false"
+      device-orientation-permission-ui="enabled: false"
+    >
+      <a-assets>
+        <video
+          id="target-video"
+          src="https://cdn.jsdelivr.net/gh/tobi-i-codes/my-vite-project@main/public/music/video.mp4"
+          crossorigin="anonymous"
+          loop="true"
+        ></video>
+        <img
+          id="play-icon"
+          src="https://cdn.jsdelivr.net/gh/tobi-i-codes/my-vite-project@main/src/assets/icons/play.png"
+          crossorigin="anonymous"
+        />
+      </a-assets>
+
+      <a-camera
+        position="0 0 0"
+        look-controls="enabled: false"
+        cursor="fuse: false; rayOrigin: mouse;"
+        raycaster="far: 10000; objects: .clickable"
+      ></a-camera>
+
+      <a-entity mindar-image-target="targetIndex: 0">
+        <a-video
+          src="#target-video"
+          width="1"
+          height="0.552"
+          position="0 0 0"
+        ></a-video>
+        <a-image
+          id="play-button"
+          class="clickable"
+          src="#play-icon"
+          position="0 0 0.01"
+          height="0.15"
+          width="0.15"
+          visible="false"
+        ></a-image>
+      </a-entity>
+    </a-scene>
+  </body>
 </html>
